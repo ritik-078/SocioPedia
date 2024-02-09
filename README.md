@@ -1,1 +1,1 @@
-SocioPedia
+SocioPedia is a social networking platform resembling Instagram, crafted using the robust MERN Stack. Empowering users to connect, share, and explore, it offers seamless photo and video sharing capabilities alongside engaging features, fostering vibrant online communities and interactions.
