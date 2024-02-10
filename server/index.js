@@ -9,8 +9,15 @@ import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js"
 import { register } from "./controllers/auth.js";
- 
+import { createPost } from "./controllers/posts.js"
+import { verifyToken } from './middleware/auth.js';
+import User from './controllers/models/User.js';
+import Post from './controllers/models/Post.js';
+import { users, posts} from "./data/index.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
@@ -37,7 +44,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.post("/auth/register",upload.single("picture"),register)
+app.post("/posts",verifyToken,upload.single("picture"),createPost)
+// Routing
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
 app.get("/",(req, res) => {
   res.status(200).send("Hello")
 })
@@ -46,15 +57,16 @@ app.get("/",(req, res) => {
 
 // Setting Port and Database
 const PORT = process.env.PORT || 5001
-mongoose.connect(process.env.MONGO_URL,{
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server Listening on port: ${PORT}`)
+      // Adding Dummy Data (Once)
+      // User.insertMany(users);
+      // Post.insertMany(posts);
     })
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server Listening on port: ${PORT}`)
-        })
-    })
-    .catch((error) => {
-        console.log(error)
-    })
+  })
+  .catch((error) => {
+      console.log(error)
+  })
